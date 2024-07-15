@@ -56,15 +56,18 @@ def mutate(chromosome,chi,chromosome_len,real_valued=False):
     Returns: the mutated chromosome.
     '''
     new_chromosome = []
-    for gene in chromosome:
-        if np.random.random() < (chi/chromosome_len):
-            new_gene = abs(gene-1)
-        else:
-            new_gene = gene
-        new_chromosome.append(int(new_gene))
+    if real_valued:
+        pass
+    else:
+        for gene in chromosome:
+            if np.random.random() < (chi/chromosome_len):
+                new_gene = abs(gene-1)
+            else:
+                new_gene = gene
+            new_chromosome.append(int(new_gene))
     return new_chromosome
 
-def pdcoea(pop_size,chromosome_len,epochs,g,real_valued=False,mean=None,stdv=None, **kwargs):
+def pdcoea(pop_size,chromosome_len,epochs,g,sample=False,real_valued=False,mean=None,stdv=None, **kwargs):
     '''
     implements PDCo-EA algorithm, proposed by Lehre et. al. in https://link.springer.com/article/10.1007/s00453-024-01218-3.
 
@@ -73,6 +76,7 @@ def pdcoea(pop_size,chromosome_len,epochs,g,real_valued=False,mean=None,stdv=Non
         chromosome_len: Length of the chromosomes.
         epochs: number of generations to loop over.
         g: the dominance function to use to test for dominance.
+        sample: Boolean if true, stores a sample from each generation to a list
         real_valued: If true, indicates that the chromosome is real valued, otherwise it is assumed to be boolean.
             If the chromosome is to be real-valued, the chromosomes are initialised using a normal distribution.
         mean: Only use if chromosomes are real valued. The mean of the normal dist used to initialize the chromosomes.
@@ -80,6 +84,8 @@ def pdcoea(pop_size,chromosome_len,epochs,g,real_valued=False,mean=None,stdv=Non
         
     Returns: the final populations.
     '''
+    samples = []
+
     pop_a = create_population(pop_size,chromosome_len,real_valued,mean,stdv)
     pop_b = create_population(pop_size,chromosome_len,real_valued,mean,stdv)
     for i in range(epochs):
@@ -96,8 +102,10 @@ def pdcoea(pop_size,chromosome_len,epochs,g,real_valued=False,mean=None,stdv=Non
             new_b.append(pair[1])
         pop_a = new_a
         pop_b = new_b
-        if i%100 == 0:
-            print(np.sum(pop_a),np.sum(pop_b))
+        if sample:
+            samples.append((np.sum(pop_a),np.sum(pop_b)))
+    if samples:
+        return pop_a, pop_b, samples
     return pop_a, pop_b
 
 
