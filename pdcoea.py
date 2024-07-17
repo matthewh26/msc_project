@@ -22,6 +22,7 @@ def create_population(pop_size,chromosome_len,real_valued=False,mean=None,stdv=N
     for i in range(pop_size):
         if real_valued:
              chromosome = np.random.normal(mean,stdv,chromosome_len)
+             population.append(chromosome)
         else:
             chromosome = np.random.choice([0,1],chromosome_len)
             population.append(chromosome)
@@ -58,21 +59,21 @@ def mutate(chromosome,chi,chromosome_len,real_valued=False):
     new_chromosome = []
     if real_valued:
         for gene in chromosome:
-            if np.random.random() < (chi/chromosome_len):
+            if np.random.random() < chi:
                 new_gene = gene + np.random.normal(0,0.1)
             else:
                 new_gene = gene
             new_chromosome.append((new_gene))
     else:
         for gene in chromosome:
-            if np.random.random() < (chi/chromosome_len):
+            if np.random.random() < chi:
                 new_gene = abs(gene-1)
             else:
                 new_gene = gene
             new_chromosome.append(int(new_gene))
     return new_chromosome
 
-def pdcoea(pop_size,chromosome_len,epochs,g,sample=False,real_valued=False,mean=None,stdv=None, **kwargs):
+def pdcoea(pop_size,chromosome_len,epochs,g,chi,sample=False,real_valued=False,mean=None,stdv=None, **kwargs):
     '''
     implements PDCo-EA algorithm, proposed by Lehre et. al. in https://link.springer.com/article/10.1007/s00453-024-01218-3.
 
@@ -81,6 +82,7 @@ def pdcoea(pop_size,chromosome_len,epochs,g,sample=False,real_valued=False,mean=
         chromosome_len: Length of the chromosomes.
         epochs: number of generations to loop over.
         g: the dominance function to use to test for dominance.
+        chi: the probability with which a genome gets mutated.
         sample: Boolean if true, stores a sample from each generation to a list
         real_valued: If true, indicates that the chromosome is real valued, otherwise it is assumed to be boolean.
             If the chromosome is to be real-valued, the chromosomes are initialised using a normal distribution.
@@ -102,13 +104,14 @@ def pdcoea(pop_size,chromosome_len,epochs,g,sample=False,real_valued=False,mean=
             x2 = pop_a[np.random.randint(len(pop_a))] 
             y2 = pop_b[np.random.randint(len(pop_b))]
             dom_pair = dominance_test(x1,x2,y1,y2,g,**kwargs)
-            pair = [mutate(dom_pair[0],1,len(dom_pair[0])),mutate(dom_pair[1],1,len(dom_pair[1]))]
+            pair = [mutate(dom_pair[0],chi,len(dom_pair[0]),real_valued=True),mutate(dom_pair[1],chi,len(dom_pair[1]),real_valued=True)]
             new_a.append(pair[0])
             new_b.append(pair[1])
         pop_a = new_a
         pop_b = new_b
         if sample:
             samples.append((np.sum(pop_a)/chromosome_len,np.sum(pop_b)/chromosome_len))
+        print(f"Epoch: {i+1}/{epochs}")
     if samples:
         return pop_a, pop_b, samples
     return pop_a, pop_b
