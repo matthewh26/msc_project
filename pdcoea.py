@@ -57,7 +57,12 @@ def mutate(chromosome,chi,chromosome_len,real_valued=False):
     '''
     new_chromosome = []
     if real_valued:
-        pass
+        for gene in chromosome:
+            if np.random.random() < (chi/chromosome_len):
+                new_gene = gene + np.random.normal(0,0.1)
+            else:
+                new_gene = gene
+            new_chromosome.append((new_gene))
     else:
         for gene in chromosome:
             if np.random.random() < (chi/chromosome_len):
@@ -103,7 +108,7 @@ def pdcoea(pop_size,chromosome_len,epochs,g,sample=False,real_valued=False,mean=
         pop_a = new_a
         pop_b = new_b
         if sample:
-            samples.append((np.sum(pop_a),np.sum(pop_b)))
+            samples.append((np.sum(pop_a)/chromosome_len,np.sum(pop_b)/chromosome_len))
     if samples:
         return pop_a, pop_b, samples
     return pop_a, pop_b
