@@ -8,7 +8,6 @@ from absl import flags
 
 import pyspiel
 import pdcoea
-from open_spiel.python import games
 
 FLAGS = flags.FLAGS
 
@@ -74,15 +73,17 @@ def main(_):
     
     a, b = pdcoea.pdcoea(pop_size = 10,
                   chromosome_len = 222369,
-                  epochs = 10000,
+                  epochs = 100,
                   g = dominance_function,
-                  chi = 0.01,
+                  chi = 0.02,
                   real_valued = True,
                   mean = 0,
                   stdv = 1,
                   game_string = FLAGS.game_string
     )
-    print(a[0])
+    print('complete!')
+
+    torch.save(NeuralNetwork(a[0]).state_dict(), 'model_state_dict.pth')
 
 
 if __name__ == "__main__":
