@@ -48,7 +48,7 @@ def dominance_function(x, y, game_string):
     state = game.new_initial_state()
 
     turn_player = 0
-    for i in range(200):
+    for i in range(100):
         input = torch.Tensor(state.observation_tensor())
         out = players[turn_player](input)
         out = out.detach().numpy()
@@ -60,10 +60,12 @@ def dominance_function(x, y, game_string):
                 out[action] = np.min(out)
         state.apply_action(action)
 
+
         turn_player = abs(turn_player-1)
         if state.is_terminal():
+            print(state.returns()[0])
             return state.returns()[0]
-        
+    print("0")
     return 0
 
 
@@ -73,17 +75,17 @@ def main(_):
     
     a, b = pdcoea.pdcoea(pop_size = 10,
                   chromosome_len = 222369,
-                  epochs = 100,
+                  epochs = 10000,
                   g = dominance_function,
-                  chi = 0.02,
+                  chi = 0.1,
                   real_valued = True,
                   mean = 0,
-                  stdv = 1,
+                  stdv = 5,
                   game_string = FLAGS.game_string
     )
     print('complete!')
 
-    torch.save(NeuralNetwork(a[0]).state_dict(), 'model_state_dict.pth')
+    torch.save(NeuralNetwork(a[0]).state_dict(), 'model_3_state_dict.pth')
 
 
 if __name__ == "__main__":
